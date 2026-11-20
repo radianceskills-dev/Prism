@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="320" viewBox="0 0 1280 320" role="img" aria-labelledby="title desc">
+  <title id="title">Prism — Chat. Create. Connect.</title>
+  <desc id="desc">Prism's four-point mark refracts electric blue and cyan light on a charcoal background.</desc>
+  <defs>
+    <linearGradient id="beam" x1="0" x2="1"><stop stop-color="#0066ff" stop-opacity="0"/><stop offset="1" stop-color="#0066ff" stop-opacity=".5"/></linearGradient>
+    <linearGradient id="facet" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#00ffff"/><stop offset="1" stop-color="#0066ff"/></linearGradient>
+  </defs>
+  <rect width="1280" height="320" rx="20" fill="#1e1e1e"/>
+  <path d="M0 100 170 160 0 220Z" fill="url(#beam)"/>
+  <path d="m170 160 185-100M170 160l230-40M170 160h290M170 160l230 40M170 160l185 100" fill="none" stroke="#0066ff" stroke-opacity=".35"/>
+  <path d="m170 76 26 58 58 26-58 26-26 58-26-58-58-26 58-26Z" fill="url(#facet)"/>
+  <path d="m170 76 0 84 84 0M86 160h84v84M144 134l26 26 26-26M144 186l26-26 26 26" fill="none" stroke="#ffffff" stroke-opacity=".42"/>
+  <path d="M500 64v192" stroke="#ffffff" stroke-opacity=".13"/>
+  <text x="556" y="103" fill="#00ffff" font-family="DejaVu Sans, sans-serif" font-size="15" font-weight="700" letter-spacing="5">CHAT. CREATE. CONNECT.</text>
+  <text x="550" y="211" fill="#ffffff" font-family="DejaVu Sans, sans-serif" font-size="100" font-weight="700" letter-spacing="-4">Prism</text>
+  <text x="556" y="255" fill="#ffffff" fill-opacity=".74" font-family="DejaVu Sans, sans-serif" font-size="22">Your AI workspace, in your browser.</text>
+  <path d="M1146 64h70v70M1216 186v70h-70" fill="none" stroke="#0066ff" stroke-width="2"/>
+  <circle cx="1216" cy="160" r="4" fill="#00ffff"/>
+</svg>

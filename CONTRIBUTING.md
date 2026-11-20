@@ -14,6 +14,12 @@ Thank you for contributing. By submitting a contribution you represent that you 
 
 Explain the behavior change, privacy/security impact and verification. Include focused tests and keep the app's fixed static-export allowlist, provider credential isolation, OAuth state/PKCE checks, artefact sandbox/CSP and explicit opt-in tool controls intact. Update notices when adding, updating or modifying bundled dependencies.
 
-Do not commit `dist`, dependencies, environment files, logs, traces, screenshots, browser storage, exports, API keys or OAuth tokens. These are local outputs, not source. Review `git diff --cached` and `git status` before committing; `.gitignore` is a guardrail, not a secret scanner. Report vulnerabilities privately as described in SECURITY.md rather than in a public PR.
+Do not commit `dist`, dependencies, environment files, logs, traces, unreviewed screenshots, browser storage, exports, API keys or OAuth tokens. These are local outputs, not source. The only documentation-image exception is deliberately reviewed, synthetic imagery in `docs/assets` as described below. Review `git diff --cached` and `git status` before committing; `.gitignore` is a guardrail, not a secret scanner. Report vulnerabilities privately as described in [SECURITY.md](./SECURITY.md) rather than in a public PR.
 
 The CI workflow checks installation, app/Worker unit tests and the static build. Browser checks require Edge and remain an additional local verification step. Tests do not establish real-account provider permissions, quotas or billing behavior.
+
+## Documentation visuals
+
+The README uses original project artwork and reviewed synthetic product screenshots in `docs/assets`. To recreate the screenshots after installing test dependencies and Edge, run `node scripts/create-readme-assets.mjs` from the repository root. The helper starts a temporary loopback-only server, uses a fresh nonpersistent browser context, mocks provider/CDN responses and makes no real provider requests. It also checks that the demo's sandboxed checklist responds to interaction. Do not substitute real keys, chats, connected accounts or personal browser profiles. Inspect every image before staging it; private screenshots, traces and exports remain excluded.
+
+Keep the landing page concise and preserve setup, limits, permissions and trust boundaries in the [full guide](./docs/guide.md). Use real CI/license badges, accessible image descriptions and GitHub-compatible Markdown/HTML. README assets and documentation tooling are intentionally not part of the static-app export.
