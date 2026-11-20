@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' https: data:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="theme-color" content="#f7f8fc">
+  <title>Prism — Your AI workspace</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="i-spark" viewBox="0 0 24 24"><path d="m12 3 2.6 6.4L21 12l-6.4 2.6L12 21l-2.6-6.4L3 12l6.4-2.6Z"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-attach" viewBox="0 0 24 24"><path d="m8 13 7-7a3 3 0 0 1 4 4L9 20a5 5 0 0 1-7-7L13 2m-8 14 10-10"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M12 19V5m-6 6 6-6 6 6"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 6.1A8 8 0 0 1 20 12M4 12a8 8 0 0 0 13.9 5.9"/></symbol>
+    <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h9m4 0h3M4 17h3m4 0h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 5v2"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M5 16v4h14v-4"/></symbol>
+    <symbol id="i-code" viewBox="0 0 24 24"><path d="m8 7-5 5 5 5m8-10 5 5-5 5m-3-14-2 18"/></symbol>
+    <symbol id="i-pen" viewBox="0 0 24 24"><path d="m14 5 5 5M4 20l5-1L20 8a3.5 3.5 0 0 0-5-5L4 14Z"/></symbol>
+    <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 18h6m-5 3h4M8 14a7 7 0 1 1 8 0c-1 1-1 2-1 4H9c0-2 0-3-1-4Z"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V3H3v13h5"/></symbol>
+    <symbol id="i-sidebar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 6h16M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7m4-7v7"/></symbol>
+  </svg>
+  <div class="app-shell">
+    <button id="sidebar-backdrop" class="sidebar-backdrop" type="button" aria-label="Close conversations" tabindex="-1" hidden></button>
+    <aside class="sidebar" id="sidebar" aria-label="Conversation history">
+      <button id="close-sidebar" class="icon-button" type="button" aria-label="Close conversations">×</button>
+      <a class="brand" href="./" aria-label="Prism home"><span class="brand-mark"><svg><use href="#i-spark"/></svg></span><span>prism<span class="brand-dot">.</span></span><span class="brand-tag">PLAYGROUND</span></a>
+      <button id="new-chat" class="new-chat"><svg><use href="#i-plus"/></svg>New conversation<span class="key-hint">↗</span></button>
+      <div class="history-heading"><span>CONVERSATIONS</span></div>
+      <nav id="saved-chats" class="conversation-list" aria-label="Saved conversations"></nav>
+      <section class="interactive-ui-control" aria-label="Interactive UI">
+        <div class="artefact-mode-heading"><h2 id="artefact-mode-label">Interactive UI</h2><svg aria-hidden="true"><use href="#i-code"/></svg></div>
+        <fieldset id="artefact-mode-switch" class="artefact-mode-switch" role="radiogroup" aria-labelledby="artefact-mode-label" aria-describedby="artefact-mode-help" data-state="on" disabled>
+          <div class="artefact-mode-slider" aria-hidden="true"><span class="artefact-mode-sparkles"><i></i><i></i><i></i><i></i><i></i><i></i></span></div>
+          <button type="button" role="radio" data-mode="off" aria-checked="false" tabindex="-1">Off</button>
+          <button type="button" role="radio" data-mode="on" aria-checked="true" tabindex="0">On</button>
+          <button type="button" role="radio" data-mode="enforced" aria-checked="false" tabindex="-1">Enforced</button>
+        </fieldset>
+        <p id="artefact-mode-help" class="artefact-mode-help" role="status" aria-live="polite">Interactive UI is available when useful.</p>
+        <details class="instruction-details"><summary>View model guidance</summary><p id="artefact-instruction-text" tabindex="0" aria-label="Model guidance"></p></details>
+      </section>
+    </aside>
+    <dialog id="settings-dialog" class="settings-dialog" aria-labelledby="settings-title">
+      <div class="settings-shell flex h-full flex-col">
+        <header class="settings-header"><div><h2 id="settings-title">Settings</h2></div><button id="close-settings" type="button" class="icon-button" aria-label="Close settings">×</button></header>
+        <div class="settings-layout flex min-h-0 flex-1">
+          <nav class="settings-tabs flex flex-col gap-1" role="tablist" aria-label="Settings sections">
+            <button id="settings-tab-connection" class="settings-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="settings-panel-connection"><svg><use href="#i-lock"/></svg><span>Connection</span></button>
+            <button id="settings-tab-tools" class="settings-tab" type="button" role="tab" aria-selected="false" aria-controls="settings-panel-tools"><svg><use href="#i-spark"/></svg><span>Tools</span></button>
+            <button id="settings-tab-instructions" class="settings-tab" type="button" role="tab" aria-selected="false" aria-controls="settings-panel-instructions"><svg><use href="#i-sliders"/></svg><span>Instructions</span></button>
+            <button id="settings-tab-data" class="settings-tab" type="button" role="tab" aria-selected="false" aria-controls="settings-panel-data"><svg><use href="#i-download"/></svg><span>Data</span></button>
+          </nav>
+          <div class="settings-panels">
+            <section id="settings-panel-connection" class="settings-panel" role="tabpanel" aria-labelledby="settings-tab-connection">
+              <div class="settings-panel-heading connection-heading"><h3>Connection</h3></div>
+              <form id="connection-form" autocomplete="off" novalidate>
+                <fieldset id="connection-fields" disabled>
+                  <section id="connection-card" class="settings-card" aria-label="API connection">
+                    <fieldset id="api-protocol" class="protocol-choices">
+                      <legend>API format</legend>
+                      <div class="protocol-options">
+                        <label class="protocol-choice" for="api-protocol-gemini"><input id="api-protocol-gemini" type="radio" name="api-protocol" value="gemini" checked><span>Gemini</span></label>
+                        <label class="protocol-choice" for="api-protocol-openai"><input id="api-protocol-openai" type="radio" name="api-protocol" value="openai"><span>OpenAI-compatible</span></label>
+                      </div>
+                    </fieldset>
+                    <div class="connection-field"><label for="endpoint">API endpoint</label><input id="endpoint" type="url" value="https://generativelanguage.googleapis.com/v1beta" required spellcheck="false" autocomplete="off"></div>
+                    <div class="connection-field"><label for="api-key">API key</label><div class="password-wrap"><input id="api-key" type="password" placeholder="Paste your API key" required autocomplete="off" spellcheck="false" autocapitalize="off"><button id="toggle-key" type="button" class="icon-button" aria-label="Show API key" aria-pressed="false"><svg aria-hidden="true"><use href="#i-eye"/></svg></button></div></div>
+                  </section>
+                  <section id="kilo-card" class="settings-card" aria-label="Kilo Free Models">
+                    <label class="search-toggle" for="kilo-enabled"><span><strong>Kilo Free Models</strong><small>KEYLESS · OPTIONAL</small></span><input id="kilo-enabled" type="checkbox" role="switch" aria-describedby="kilo-help kilo-status"><span class="switch-track" aria-hidden="true"></span></label>
+                    <p id="kilo-help" class="field-help">Include Kilo’s free and stealth models when you reload models. No Kilo account or API key needed. Your API settings above stay separate.</p>
+                    <div class="connection-field"><label for="kilo-worker-url">Shared Cloudflare Worker URL</label><input id="kilo-worker-url" type="url" placeholder="https://prism-composio-worker.your-subdomain.workers.dev" autocomplete="off" spellcheck="false" autocapitalize="off" aria-describedby="kilo-worker-help"></div>
+                    <p id="kilo-worker-help" class="field-help">Uses the same Worker URL as Composio in Tools; no Composio sign-in is required for Kilo. Deploy or update your existing Worker with Kilo support. Only use a Worker you control: it can see your conversations. <a id="kilo-deploy-worker" href="https://deploy.workers.cloudflare.com/?url=https%3A%2F%2Fgithub.com%2Fradianceskills-dev%2Fprism-composio-worker" target="_blank" rel="noopener noreferrer">Deploy to Cloudflare ↗</a></p>
+                    <p class="field-help">Sending with a Kilo model shares your conversation, files and enabled tool results with your Worker, Kilo and its upstream provider. Free models may log prompts or use them for training; avoid sensitive data. “Stealth” is a model label, not a privacy guarantee. Availability and rate limits can change. <a href="https://kilo.ai/docs/gateway/models-and-providers" target="_blank" rel="noopener noreferrer">Kilo model &amp; data policies ↗</a></p>
+                    <p id="kilo-status" class="field-help" role="status">Off · only your configured API is used.</p>
+                  </section>
+                  <section id="model-card" class="settings-card" aria-labelledby="model-label">
+                    <div class="model-card-header">
+                      <div class="model-card-title"><label id="model-label" for="model-select">Choose Your Model</label><span id="model-count" class="model-count" role="status" hidden></span></div>
+                      <button id="fetch-models" class="icon-button model-reload" type="submit" aria-label="Reload models" title="Reload models" aria-busy="false"><svg aria-hidden="true" focusable="false"><use href="#i-refresh"/></svg></button>
+                    </div>
+                    <select id="model-select" disabled><option value="">Choose a model</option></select>
+                    <p id="connection-status" class="connection-status" role="status" hidden><span class="status-dot" aria-hidden="true"></span><span></span></p>
+                  </section>
+                </fieldset>
+              </form>
+            </section>
+            <section id="settings-panel-tools" class="settings-panel" role="tabpanel" aria-labelledby="settings-tab-tools" hidden>
+              <div class="settings-panel-heading"><h3>Tools</h3><p>Enable tools for this model.</p></div>
+              <section class="search-setting" aria-label="Parallel web search">
+                <label class="search-toggle" for="parallel-search"><span><strong>Parallel search</strong><small>WEB SEARCH</small></span><input id="parallel-search" type="checkbox" role="switch" aria-describedby="search-help"><span class="switch-track" aria-hidden="true"></span></label>
+                <p id="search-help" class="field-help">Search the web. No API key required.</p><p id="search-mode" role="status">Web search off</p>
+              </section>
+              <section class="search-setting" aria-label="Notion workspace">
+                <strong class="integration-title">Notion</strong><p class="field-help">When enabled, the model can read and change Notion content without approval prompts. Tool results are sent to your model provider.</p>
+                <div class="button-row"><button id="connect-notion" type="button" class="small-button">Connect Notion</button><button id="disconnect-notion" type="button" class="small-button" hidden>Disconnect</button></div>
+                <label class="check-label" for="notion-enabled"><input id="notion-enabled" type="checkbox" disabled>Allow model to use Notion tools automatically</label>
+                <button id="refresh-notion" type="button" class="small-button" hidden>Refresh tools</button><p id="notion-status" class="field-help" role="status">Not connected</p>
+              </section>
+              <section class="search-setting" aria-label="Composio MCP">
+                <strong class="integration-title">Composio MCP</strong>
+                <p class="field-help">Bring your own Cloudflare Worker. Deploy once for Composio and optional Kilo Free Models. This URL is shared with the Kilo card in Connection. Sign in here only to connect Composio tools. No shared server or database.</p>
+                <a id="deploy-composio-worker" class="small-button deploy-worker" href="https://deploy.workers.cloudflare.com/?url=https%3A%2F%2Fgithub.com%2Fradianceskills-dev%2Fprism-composio-worker" target="_blank" rel="noopener noreferrer">Deploy to Cloudflare ↗</a>
+                <label for="composio-worker-url">Your Worker URL</label>
+                <input id="composio-worker-url" type="url" placeholder="https://prism-composio-mcp.your-subdomain.workers.dev" autocomplete="off" spellcheck="false" autocapitalize="off" aria-describedby="composio-worker-help">
+                <p id="composio-worker-help" class="field-help">Only use a Worker you control: it can see authorization tokens and tool content. Credentials stay in this browser, not in exports. Disconnect here to forget them; revoke remote access in Composio.</p>
+                <div class="button-row"><button id="connect-composio" type="button" class="small-button">Connect Composio</button><button id="disconnect-composio" type="button" class="small-button" hidden>Disconnect</button><button id="refresh-composio" type="button" class="small-button" hidden>Refresh tools</button></div>
+                <label class="check-label" for="composio-enabled"><input id="composio-enabled" type="checkbox" disabled>Allow model to use Composio tools automatically</label>
+                <p class="field-help">When enabled, discovered tools can read and change connected apps without per-call prompts. Results are sent to your model provider. Connect only the accounts you intend to share.</p>
+                <p id="composio-status" class="field-help" role="status">Not connected</p>
+              </section>
+            </section>
+            <section id="settings-panel-instructions" class="settings-panel" role="tabpanel" aria-labelledby="settings-tab-instructions" hidden>
+              <div class="settings-panel-heading"><h3>Conversation instructions</h3><p>Applied to each new message. Support varies by model.</p></div>
+              <label for="system-prompt">System instruction</label><textarea id="system-prompt" rows="7" placeholder="e.g. Be concise, clear, and helpful."></textarea>
+            </section>
+            <section id="settings-panel-data" class="settings-panel" role="tabpanel" aria-labelledby="settings-tab-data" hidden><div class="settings-panel-heading"><h3>Data</h3></div><p id="storage-status" class="field-help" role="status">Loading…</p><div class="button-row"><button id="export-all" type="button" class="small-button">Export all chats</button><button id="clear-data" type="button" class="small-button danger-button">Clear data</button></div><a class="get-key" id="data-key-link" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer"><span id="data-key-label">Get a Gemini API key</span><span>↗</span></a></section>
+          </div>
+        </div>
+      </div>
+    </dialog>
+    <main class="workspace">
+      <header class="topbar"><div class="workspace-title"><button id="toggle-sidebar" class="icon-button mobile-settings" aria-controls="sidebar" aria-expanded="false" aria-label="Open conversations"><svg><use href="#i-sidebar"/></svg></button><span class="workspace-label">Workspace</span><span class="breadcrumb">/</span><strong id="chat-title">New conversation</strong></div><div class="topbar-actions"><button id="delete-chat" type="button" class="icon-button" aria-label="Delete conversation" title="Delete conversation" disabled><svg><use href="#i-trash"/></svg></button><button id="export-chat" class="icon-button" aria-label="Download conversation" title="Download conversation" disabled><svg><use href="#i-download"/></svg></button><button id="toggle-settings" type="button" class="settings-trigger" aria-controls="settings-dialog" aria-haspopup="dialog" aria-expanded="false"><svg><use href="#i-sliders"/></svg><span>Settings</span></button></div></header>
+      <div class="chat-scroll" id="chat-scroll">
+        <section class="welcome" id="welcome">
+          <h1 class="text-3xl font-semibold tracking-tight">What can I help with?</h1>
+          <button id="setup-connection" type="button" class="mt-5 inline-flex items-center gap-2 rounded-lg border border-violet-200 px-4 py-2 text-sm text-violet-700 hover:bg-violet-50">Choose a model</button>
+          <div class="prompt-grid">
+            <button class="prompt-card" data-prompt="Help me brainstorm five original ideas for a small weekend project. Ask me about my interests first."><span class="prompt-icon lilac"><svg><use href="#i-bulb"/></svg></span><strong>Brainstorm ideas</strong><span></span><span class="card-arrow">↗</span></button>
+            <button class="prompt-card" data-prompt="Help me write a clear, engaging piece of writing. Start by asking what I want to write and who the audience is."><span class="prompt-icon peach"><svg><use href="#i-pen"/></svg></span><strong>Draft text</strong><span></span><span class="card-arrow">↗</span></button>
+            <button class="prompt-card" data-prompt="Be my coding partner. Ask me what I am building, then help me break it down into practical steps."><span class="prompt-icon mint"><svg><use href="#i-code"/></svg></span><strong>Write code</strong><span></span><span class="card-arrow">↗</span></button>
+          </div>
+        </section>
+        <details id="tool-audit" class="tool-activity" hidden><summary>Notion activity · includes interrupted turns</summary><div id="tool-audit-entries"></div></details>
+        <section id="messages" class="messages" aria-label="Conversation" aria-live="polite" aria-relevant="additions text"></section>
+      </div>
+      <div class="composer-area">
+        <div id="chat-notice" class="chat-notice" role="status" hidden></div>
+        <form id="chat-form" class="composer">
+          <input id="attachment-input" type="file" multiple hidden>
+          <div id="attachment-list" class="attachment-list" aria-label="Attached files" hidden></div>
+          <p id="attachment-status" class="attachment-status" role="status" aria-live="polite" hidden></p>
+          <label for="message-input" class="sr-only">Your message</label>
+          <textarea id="message-input" rows="1" placeholder="Message, drop files, or paste an image" aria-describedby="composer-hint attachment-help" maxlength="100000"></textarea>
+          <div class="composer-toolbar"><div class="composer-tools"><button id="attach-files" class="icon-button attach-button" type="button" aria-label="Attach images or files" aria-describedby="attachment-help" title="Attach images or files" disabled><svg><use href="#i-attach"/></svg></button><span class="model-pill"><svg><use href="#i-spark"/></svg><span id="active-model">No model selected</span></span></div><div class="send-actions"><span id="composer-hint">Enter to send <span>·</span> Shift + Enter for a new line</span><button id="stop-button" class="stop-button" type="button" hidden>■ Stop</button><button id="send-button" class="send-button" type="submit" aria-label="Send message" disabled><svg><use href="#i-arrow"/></svg></button></div></div>
+          <details class="attachment-help"><summary>Images &amp; files · direct, no public upload</summary><p id="attachment-help">Attach, drop, or paste JPEG, PNG, WebP, PDF, or UTF-8 text/code. Up to 4 files, 4 MiB each (text/code: 512 KiB), 8 MiB total per message. Files stay in this browser until you send; sending shares them and conversation history with your configured model endpoint. File/vision support depends on your model and provider. Saved files are not encrypted; JSON chat exports include their contents. Markdown exports include names only. SVG, Office files and archives are not supported. This is separate from public Catbox uploads in interactive previews.</p></details>
+        </form>
+        <p class="composer-footer"><span class="footer-dot"></span><span id="footer-status">No model connected</span><span class="footer-divider">·</span>AI can make mistakes. Check important details.</p>
+      </div>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status" hidden></div>
+</body>
+</html>

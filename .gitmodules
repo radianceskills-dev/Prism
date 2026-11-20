@@ -1,0 +1,3 @@
+[submodule "composio-worker"]
+	path = composio-worker
+	url = https://github.com/radianceskills-dev/prism-composio-worker.git

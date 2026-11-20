@@ -1,0 +1,23 @@
+{
+  "name": "prism-gemini-chat",
+  "version": "1.0.0",
+  "private": true,
+  "license": "MIT",
+  "repository": { "type": "git", "url": "git+https://github.com/radianceskills-dev/Prism.git" },
+  "homepage": "https://github.com/radianceskills-dev/Prism#readme",
+  "bugs": { "url": "https://github.com/radianceskills-dev/Prism/issues" },
+  "type": "module",
+  "description": "A static Gemini chat workspace with safe Markdown, interactive artefacts, web search and Notion tools.",
+  "scripts": {
+    "start": "node server.mjs",
+    "build": "node build.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "test:browser": "playwright test"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.1"
+  }
+}

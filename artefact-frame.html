@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="X-DNS-Prefetch-Control" content="off">
+<!-- This policy is intentionally separate from the application policy. The
+     about:-only frame policy also blocks the inner frame navigating to HTTP. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src https: data: blob:; font-src data:; media-src data: blob:; connect-src 'none'; frame-src about:; child-src about:; worker-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Prism artefact sandbox</title>
+<style>html,body{margin:0;padding:0;width:100%;overflow:hidden}iframe{display:block;width:100%;height:1px;border:0;max-height:none}</style>
+</head>
+<body>
+<script>
+(() => {
+  'use strict';
+  // This trusted host never executes model code in its own window. The child
+  // gets a different opaque origin and never receives the app channel token.
+  const token = location.hash.slice(1);
+  if (!/^[a-f0-9-]{36}$/i.test(token) || parent === window) return;
+  const send = parent.postMessage.bind(parent);
+  let child = null;
+  let childToken = null;
+  let linkPort = null;
+  let pendingUploadId = null;
+  let childLoaded = false, capabilityRevoked = false;
+  function cancelPendingUpload() {
+    if (!pendingUploadId) return;
+    const id = pendingUploadId;
+    pendingUploadId = null;
+    send({ type: 'prism-artefact-catbox-cancel', token, id }, '*');
+    linkPort?.postMessage({ type: 'catbox-result', id, error: 'The requesting preview loaded or navigated. Wait for it to finish loading before trying again.' });
+  }
+  function revokeCapability() {
+    capabilityRevoked = true;
+    cancelPendingUpload();
+    // Keep the closed port truthy: never accept a replacement channel using
+    // the child key, which model code can read from its bootstrap source.
+    linkPort?.close();
+  }
+  function externalLink(value) {
+    if (typeof value !== 'string') return null;
+    try {
+      const url = new URL(value);
+      return ['https:', 'http:'].includes(url.protocol) && !url.username && !url.password ? url.href : null;
+    } catch { return null; }
+  }
+  let pendingHeight = 0, resizeQueued = false, lastHeight = 0;
+  function queueHeight(height) {
+    pendingHeight = Math.ceil(height);
+    if (resizeQueued) return;
+    resizeQueued = true;
+    let frame, timer;
+    const flush = () => {
+      if (!resizeQueued) return;
+      resizeQueued = false;
+      cancelAnimationFrame(frame);
+      clearTimeout(timer);
+      if (!child || pendingHeight === lastHeight) return;
+      lastHeight = pendingHeight;
+      child.style.height = lastHeight + 'px';
+      send({ type: 'prism-artefact-resize', token, height: lastHeight }, '*');
+    };
+    frame = requestAnimationFrame(flush);
+    // Offscreen opaque frames can have rAF suspended, including at height 1px.
+    timer = setTimeout(flush, 80);
+  }
+  const ready = () => send({ type: 'prism-artefact-ready', token }, '*');
+  const policy = "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src https: data: blob:; font-src data:; media-src data: blob:; connect-src 'none'; frame-src 'none'; child-src 'none'; worker-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'";
+
+  function heightBridge(key) {
+    'use strict'; // Serialization must retain strict mode without the host IIFE.
+    // This bootstrap runs before model code. Capture native operations and keep
+    // the link port private: the model can read this script, including its key,
+    // but cannot use that key to forge a trusted user-click link request.
+    const channel = new MessageChannel();
+    const sendLink = channel.port1.postMessage.bind(channel.port1);
+    const closest = Function.prototype.call.bind(Element.prototype.closest);
+    const attribute = Function.prototype.call.bind(Element.prototype.getAttribute);
+    const eventPath = Function.prototype.call.bind(Event.prototype.composedPath);
+    const preventDefault = Function.prototype.call.bind(Event.prototype.preventDefault);
+    const stopPropagation = Function.prototype.call.bind(Event.prototype.stopImmediatePropagation);
+    const trim = Function.prototype.call.bind(String.prototype.trim);
+    const URLConstructor = URL;
+    const urlGetter = name => Function.prototype.call.bind(Object.getOwnPropertyDescriptor(URLConstructor.prototype, name).get);
+    const urlProtocol = urlGetter('protocol'), urlUsername = urlGetter('username'), urlPassword = urlGetter('password'), urlHref = urlGetter('href');
+    const send = parent.postMessage.bind(parent);
+    // This narrowly scoped API only requests a trusted host dialog. Model code
+    // cannot supply file bytes, destinations or credentials, or publish a file.
+    const NativePromise = Promise, NativeError = Error;
+    const reject = NativePromise.reject.bind(NativePromise);
+    const makeId = crypto.randomUUID.bind(crypto);
+    const phase = Function.prototype.call.bind(Object.getOwnPropertyDescriptor(Event.prototype, 'eventPhase').get);
+    const activation = navigator.userActivation;
+    const activeGetter = activation && Object.getOwnPropertyDescriptor(Object.getPrototypeOf(activation), 'isActive')?.get;
+    const isActive = activeGetter ? Function.prototype.call.bind(activeGetter) : () => false;
+    let trustedClick = null, pendingUpload = null, documentGone = false;
+    addEventListener('pagehide', event => {
+      if (!event.isTrusted) return;
+      documentGone = true;
+      sendLink({ type: 'document-gone' });
+    }, true);
+    addEventListener('click', event => { if (event.isTrusted && event.button === 0) trustedClick = event; }, true);
+    channel.port1.onmessage = event => {
+      const data = event.data;
+      if (data?.type !== 'catbox-result' || !pendingUpload || data.id !== pendingUpload.id) return;
+      const pending = pendingUpload;
+      pendingUpload = null;
+      if (typeof data.url === 'string') pending.resolve(data.url);
+      else pending.reject(new NativeError(typeof data.error === 'string' ? data.error : 'The upload dialog was closed.'));
+    };
+    Object.defineProperty(window, 'prism', { value: Object.freeze({ uploadToCatbox: function () {
+      if (arguments.length) return reject(new NativeError('uploadToCatbox accepts no arguments. Choose a file in the trusted Prism dialog.'));
+      if (documentGone || !trustedClick || !trustedClick.isTrusted || phase(trustedClick) === 0 || !isActive(activation)) return reject(new NativeError('Open the upload dialog directly from a real button click.'));
+      if (pendingUpload) return reject(new NativeError('An upload dialog is already open.'));
+      return new NativePromise((resolve, reject) => {
+        const id = makeId();
+        pendingUpload = { id, resolve, reject };
+        sendLink({ type: 'catbox-request', id });
+      });
+    } }), writable: false, configurable: false });
+    send({ type: 'prism-artefact-link-channel', key }, '*', [channel.port2]);
+    function followLink(event) {
+      if (event.type !== 'click' && event.type !== 'auxclick' || event.type === 'auxclick' && event.button !== 1) return;
+      const path = eventPath(event);
+      for (let index = 0; index < path.length; index++) {
+        let anchor;
+        try { anchor = closest(path[index], 'a,area'); } catch { continue; }
+        if (!anchor) continue;
+        const href = attribute(anchor, 'href') ?? attribute(anchor, 'xlink:href');
+        if (typeof href !== 'string') continue;
+        // Local anchors remain ordinary in-preview navigation. Block every
+        // other default navigation, including scripted clicks and unsafe URLs.
+        if (trim(href)[0] === '#') return;
+        preventDefault(event);
+        stopPropagation(event);
+        if (!event.isTrusted || event.button !== 0 && event.button !== 1) return;
+        try {
+          const url = new URLConstructor(href);
+          if ((urlProtocol(url) === 'https:' || urlProtocol(url) === 'http:') && !urlUsername(url) && !urlPassword(url)) sendLink({ type: 'open-link', url: urlHref(url) });
+        } catch { /* Relative and non-web links are not external destinations. */ }
+        return;
+      }
+    }
+    addEventListener('click', followLink, true);
+    addEventListener('auxclick', followLink, true);
+    const scheduleFrame = requestAnimationFrame.bind(window);
+    const cancelFrame = cancelAnimationFrame.bind(window);
+    const scheduleTimer = setTimeout.bind(window);
+    const cancelTimer = clearTimeout.bind(window);
+    const measureStyle = getComputedStyle.bind(window);
+    let queued = false, lastHeight = 0, lastWidth = innerWidth;
+    function measure() {
+      queued = false;
+      const body = document.body;
+      if (!body) return;
+      const rect = body.getBoundingClientRect();
+      const margin = parseFloat(measureStyle(body).marginBottom) || 0;
+      // Root scrollHeight has a viewport-sized floor. Ignore that floor so a
+      // preview can shrink as well as grow after interactive content changes.
+      let height = Math.max(1, rect.bottom + scrollY + margin, rect.top + scrollY + body.scrollHeight + margin);
+      if (document.documentElement.scrollHeight > innerHeight + 1) height = Math.max(height, document.documentElement.scrollHeight);
+      height = Math.ceil(height);
+      if (height !== lastHeight && Number.isFinite(height)) {
+        lastHeight = height;
+        send({ type: 'prism-artefact-content-size', key, height }, '*');
+      }
+    }
+    function schedule() {
+      if (queued) return;
+      queued = true;
+      let frame, timer;
+      const flush = () => {
+        if (!queued) return;
+        cancelFrame(frame);
+        cancelTimer(timer);
+        measure();
+      };
+      frame = scheduleFrame(flush);
+      timer = scheduleTimer(flush, 80);
+    }
+    function start() {
+      new ResizeObserver(schedule).observe(document.documentElement);
+      if (document.body) new ResizeObserver(schedule).observe(document.body);
+      new MutationObserver(schedule).observe(document.documentElement, { childList: true, subtree: true, attributes: true, characterData: true });
+      addEventListener('load', schedule, true);
+      addEventListener('transitionend', schedule, true);
+      addEventListener('animationend', schedule, true);
+      document.fonts?.ready.then(schedule);
+      schedule();
+    }
+    addEventListener('resize', () => { if (innerWidth !== lastWidth) { lastWidth = innerWidth; schedule(); } });
+    if (document.readyState === 'loading') addEventListener('DOMContentLoaded', start, { once: true }); else start();
+  }
+
+  addEventListener('message', event => {
+    const data = event.data;
+    if (!data || typeof data !== 'object') return;
+    if (event.source === parent && data.token === token) {
+      if (data.type === 'prism-artefact-ping') { ready(); return; }
+      if (data.type === 'prism-artefact-catbox-result' && pendingUploadId && data.id === pendingUploadId) {
+        pendingUploadId = null;
+        linkPort?.postMessage({ type: 'catbox-result', id: data.id, ...(typeof data.url === 'string' ? { url: data.url } : { error: typeof data.error === 'string' ? data.error : 'The upload dialog was closed.' }) });
+        return;
+      }
+      if (data.type !== 'prism-artefact-init' || child || typeof data.html !== 'string') return;
+      childToken = crypto.randomUUID();
+      child = document.createElement('iframe');
+      child.title = 'Interactive artefact';
+      child.setAttribute('sandbox', 'allow-scripts');
+      child.setAttribute('referrerpolicy', 'no-referrer');
+      child.setAttribute('credentialless', '');
+      child.setAttribute('allow', "camera 'none'; microphone 'none'; geolocation 'none'; clipboard-read 'none'; clipboard-write 'none'; payment 'none'; usb 'none'; fullscreen 'none'");
+      const bootstrap = '(' + heightBridge.toString() + ')(' + JSON.stringify(childToken) + ');';
+      // Split closing script delimiters in this static host's own source.
+      child.srcdoc = '<!doctype html><html><head><meta charset="utf-8"><meta name="referrer" content="no-referrer"><meta http-equiv="X-DNS-Prefetch-Control" content="off"><meta http-equiv="Content-Security-Policy" content="' + policy + '"><style>html{overflow-x:hidden}body{margin:0;display:flow-root}</style><scr' + 'ipt>' + bootstrap + '</scr' + 'ipt></head>' + data.html;
+      child.addEventListener('load', () => {
+        // Also catch navigations if pagehide is unavailable. A very early
+        // click before the initial load is conservatively cancelled, but the
+        // original channel remains usable once that first load completes.
+        if (childLoaded) revokeCapability();
+        else { childLoaded = true; cancelPendingUpload(); }
+      });
+      document.body.append(child);
+    } else if (child && event.source === child.contentWindow && data.key === childToken) {
+      if (data.type === 'prism-artefact-link-channel' && !capabilityRevoked && !linkPort && event.ports.length === 1) {
+        // The prepended bootstrap transfers this first, before any model script
+        // can post a competing channel. Never accept link requests on window.
+        linkPort = event.ports[0];
+        linkPort.onmessage = event => {
+          const data = event.data;
+          if (data?.type === 'document-gone') { revokeCapability(); return; }
+          if (capabilityRevoked) return;
+          if (data?.type === 'catbox-request' && typeof data.id === 'string' && /^[a-f0-9-]{36}$/i.test(data.id) && !pendingUploadId) {
+            pendingUploadId = data.id;
+            send({ type: 'prism-artefact-catbox-request', token, id: data.id }, '*');
+          } else if (data?.type === 'open-link') {
+            const url = externalLink(data.url);
+            if (url) send({ type: 'prism-artefact-open-link', token, url }, '*');
+          }
+        };
+        linkPort.start();
+      } else if (data.type === 'prism-artefact-content-size' && typeof data.height === 'number' && Number.isFinite(data.height) && data.height > 0) {
+        queueHeight(data.height);
+      }
+    }
+  });
+  ready();
+})();
+</script>
+</body>
+</html>
