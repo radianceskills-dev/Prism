@@ -11,11 +11,13 @@
 
 <p align="center">
   <a href="https://github.com/radianceskills-dev/Prism/actions/workflows/ci.yml"><img src="https://github.com/radianceskills-dev/Prism/actions/workflows/ci.yml/badge.svg" alt="Verify Prism build and tests"></a>
+  <a href="https://github.com/radianceskills-dev/Prism/releases/latest"><img src="https://img.shields.io/github/v/release/radianceskills-dev/Prism?style=flat-square&amp;labelColor=1e1e1e&amp;color=0066ff" alt="Latest Prism release"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-0066ff?style=flat-square&amp;labelColor=1e1e1e" alt="License: MIT"></a>
   <a href="#quick-start"><img src="https://img.shields.io/badge/app-static_HTML_%2B_JS-00ffff?style=flat-square&amp;labelColor=1e1e1e" alt="Static HTML and JavaScript app"></a>
 </p>
 
 <p align="center">
+  <a href="https://prism-webchat.netlify.app/">Open Prism</a> ·
   <a href="#quick-start">Quick start</a> ·
   <a href="#built-for-more-than-chat">Features</a> ·
   <a href="./docs/guide.md">User &amp; developer guide</a> ·
@@ -117,7 +119,9 @@ npm --prefix composio-worker test
 npm run build
 ```
 
-The export contains **23 public assets plus `_headers`**, including the license and third-party notices. Deploy the generated `dist` directory to a compatible static host. Source-repository publication does not deploy a hosted app or Worker.
+The export contains **23 public assets plus `_headers`**, including the license and third-party notices. Deploy the generated `dist` directory to a compatible static host. [GitHub Releases](https://github.com/radianceskills-dev/Prism/releases/latest) provide a ready-built static ZIP and SHA-256 checksum; extract and serve it over HTTP(S), not `file://`. Source-repository publication does not deploy a hosted app or Worker.
+
+Prism **1.0.0** is the first stable release. See the [changelog](./CHANGELOG.md) and [versioning and release policy](./docs/releases.md). The [hosted app](https://prism-webchat.netlify.app/) requires your own provider configuration and credentials.
 
 For browser tests, keep `npm start` running in another terminal, then run `npm run test:browser` with Edge installed. Use a recursive clone: GitHub source ZIP downloads omit the Worker submodule. [Development and contribution guide →](./CONTRIBUTING.md)
 

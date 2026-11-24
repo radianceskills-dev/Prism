@@ -8,7 +8,7 @@ Include the affected commit/version, browser/OS, minimal reproduction using synt
 
 ## Scope and trust boundaries
 
-The current default branch is the supported development version. Prism runs in the browser; it is not an encrypted credential vault. IndexedDB/browser storage and same-origin scripts can access locally stored data. Do not deploy it on an origin shared with untrusted applications.
+Security fixes target the latest stable release and the current default branch; older releases are not maintained as separate support branches. See the [release policy](./docs/releases.md) for versioning and support. Prism runs in the browser; it is not an encrypted credential vault. IndexedDB/browser storage and same-origin scripts can access locally stored data. Do not deploy it on an origin shared with untrusted applications.
 
 The Tailwind browser runtime currently loads as a floating major version from jsDelivr without SRI and has the app's page privileges. Review this supply-chain trust before entering sensitive data; high-assurance deployments should pin/self-host reviewed code or precompile CSS. See the README for external network dependencies and the current privacy caveats.
 

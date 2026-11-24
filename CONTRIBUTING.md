@@ -18,6 +18,10 @@ Do not commit `dist`, dependencies, environment files, logs, traces, unreviewed 
 
 The CI workflow checks installation, app/Worker unit tests and the static build. Browser checks require Edge and remain an additional local verification step. Tests do not establish real-account provider permissions, quotas or billing behavior.
 
+## Versions and releases
+
+Prism follows Semantic Versioning, starting with stable **1.0.0**. Record user-visible changes under `Unreleased` in the [changelog](./CHANGELOG.md). Keep compatible feature work in minor releases, fixes in patch releases and incompatible changes in major releases. The [release policy and maintainer checklist](./docs/releases.md) cover version/tag alignment, CI, safe static ZIPs, checksums and deployment of the exact tagged commit. The Worker keeps its own independent release history.
+
 ## Documentation visuals
 
 The README uses original project artwork and reviewed synthetic product screenshots in `docs/assets`. To recreate the screenshots after installing test dependencies and Edge, run `node scripts/create-readme-assets.mjs` from the repository root. The helper starts a temporary loopback-only server, uses a fresh nonpersistent browser context, mocks provider/CDN responses and makes no real provider requests. It also checks that the demo's sandboxed checklist responds to interaction. Do not substitute real keys, chats, connected accounts or personal browser profiles. Inspect every image before staging it; private screenshots, traces and exports remain excluded.
